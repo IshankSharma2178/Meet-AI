@@ -1,6 +1,5 @@
 import { createAvatar } from "@dicebear/core";
 import { botttsNeutral, initials } from "@dicebear/collection";
-
 import { cn } from "@/lib/utils";
 import { Avatar, AvatarFallback, AvatarImage } from "@radix-ui/react-avatar";
 
@@ -15,24 +14,27 @@ export const GeneratedAvatar = ({
   className,
   variant,
 }: GeneratedAvatarProps) => {
-  let avatar;
-
-  if (variant === "botttsNeutral") {
-    avatar = createAvatar(botttsNeutral, {
-      seed,
-    });
-  } else {
-    avatar = createAvatar(initials, {
-      seed,
-      fontWeight: 500,
-      fontSize: 42,
-    });
-  }
+  const avatar =
+    variant === "botttsNeutral"
+      ? createAvatar(botttsNeutral, { seed })
+      : createAvatar(initials, {
+          seed,
+          fontWeight: 500,
+          fontSize: 42,
+        });
 
   return (
-    <Avatar className={cn(className)}>
-      <AvatarImage src={avatar.toDataUri()} alt="Avatar" />
-      <AvatarFallback>{seed.charAt(0).toUpperCase()}</AvatarFallback>
-    </Avatar>
+    <div className={cn("w-12 h-12", className)}>
+      <Avatar className="w-full h-full rounded-full overflow-hidden border">
+        <AvatarImage
+          src={avatar.toDataUri()}
+          alt="Avatar"
+          className="object-cover w-full h-full"
+        />
+        <AvatarFallback className="flex items-center justify-center w-full h-full bg-muted text-muted-foreground text-sm">
+          {seed.charAt(0).toUpperCase()}
+        </AvatarFallback>
+      </Avatar>
+    </div>
   );
 };
