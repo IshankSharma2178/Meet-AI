@@ -4,6 +4,7 @@ import { Geist_Mono, Inter } from "next/font/google";
 import { TRPCReactProvider } from "@/trpc/client";
 import "./globals.css";
 import { Toaster } from "@/components/ui/sonner";
+import { NuqsAdapter } from "nuqs/adapters/next";
 
 const inter = Inter({
   variable: "--font-geist-sans",
@@ -26,15 +27,17 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <TRPCReactProvider>
-      <html lang="en">
-        <body
-          className={`${inter.className} ${geistMono.variable} antialiased`}
-        >
-          <Toaster />
-          {children}
-        </body>
-      </html>
-    </TRPCReactProvider>
+    <NuqsAdapter>
+      <TRPCReactProvider>
+        <html lang="en">
+          <body
+            className={`${inter.className} ${geistMono.variable} antialiased`}
+          >
+            <Toaster />
+            {children}
+          </body>
+        </html>
+      </TRPCReactProvider>
+    </NuqsAdapter>
   );
 }
