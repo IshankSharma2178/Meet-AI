@@ -12,7 +12,7 @@ import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table";
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
-  onRowClick?: (data: TData) => void;
+  onRowClick?: (row: TData) => void;
 }
 
 export function DataTable<TData, TValue>({
@@ -27,7 +27,7 @@ export function DataTable<TData, TValue>({
   });
 
   return (
-    <div className="overflow-hidden rounded-lg bg-background  border">
+    <div className="rounded-lg border bg-background overflow-hidden">
       <Table>
         <TableBody>
           {table.getRowModel().rows?.length ? (

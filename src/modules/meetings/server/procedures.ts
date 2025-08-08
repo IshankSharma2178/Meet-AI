@@ -55,26 +55,31 @@ export const meetingsRouter = createTRPCRouter({
       const { page, pageSize, search } = input;
       const data = await db
         .select({
-          meetingCount: sql<number>`5`,
-          ...getTableColumns(agents),
+          agent: agents,
+          ...getTableColumns(meetings),
+          duration: sql<number>`EXTRACT(EPOCH FROM (ended_at - started_at))`.as(
+            "duration"
+          ),
         })
-        .from(agents)
+        .from(meetings)
+        .innerJoin(agents, eq(meetings.agentId, agents.id))
         .where(
           and(
-            eq(agents.userId, ctx.auth.user.id),
-            search ? ilike(agents.name, `%${search}%`) : undefined
+            eq(meetings.userId, ctx.auth.user.id),
+            search ? ilike(meetings.name, `%${search}%`) : undefined
           )
         )
-        .orderBy(desc(agents.createdAt), desc(agents.id))
+        .orderBy(desc(meetings.createdAt), desc(meetings.id))
         .limit(pageSize)
         .offset((page - 1) * pageSize);
       const [total] = await db
         .select({ count: count() })
-        .from(agents)
+        .from(meetings)
+        .innerJoin(agents, eq(meetings.agentId, agents.id))
         .where(
           and(
-            eq(agents.userId, ctx.auth.user.id),
-            search ? ilike(agents.name, `%${search}%`) : undefined
+            eq(meetings.userId, ctx.auth.user.id),
+            search ? ilike(meetings.name, `%${search}%`) : undefined
           )
         );
       const totalPages = Math.ceil(total.count / pageSize);
