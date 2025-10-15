@@ -99,7 +99,9 @@ export async function POST(req: NextRequest) {
     });
 
     realtimeClient.updateSession({
-      instructions: exisitingAgent.instructions,
+      instructions:
+        exisitingAgent.instructions +
+        "You by-default speak in english language and give response in english language.",
     });
   } else if (eventType === "call.session_participant_left") {
     const event = payload as CallSessionParticipantLeftEvent;
