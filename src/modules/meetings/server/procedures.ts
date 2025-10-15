@@ -295,6 +295,10 @@ export const meetingsRouter = createTRPCRouter({
           userId: ctx.auth.user.id,
         })
         .returning();
+      const maxDuration = parseInt(
+        process.env.MAX_DURATION_SECONDS || "20",
+        10
+      );
 
       const call = streamVideo.video.call("default", createdMeeting.id);
       await call.create({
@@ -309,6 +313,9 @@ export const meetingsRouter = createTRPCRouter({
               language: "en",
               mode: "auto-on",
               closed_caption_mode: "auto-on",
+            },
+            limits: {
+              max_duration_seconds: maxDuration,
             },
             recording: {
               mode: "auto-on",
