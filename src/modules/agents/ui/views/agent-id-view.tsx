@@ -15,8 +15,8 @@ import { VideoIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { useConfirm } from "@/hooks/use-confirm";
-import { UpdateAgentDialog } from "../components/update-agent-dialog";
 import { useState } from "react";
+import { UpdateAgentDialog } from "../components/update-agent-dialog";
 
 interface Props {
   agentId: string;
@@ -26,8 +26,12 @@ export const AgentIdView = ({ agentId }: Props) => {
   const trpc = useTRPC();
   const router = useRouter();
   const queryClient = useQueryClient();
-  const [UpdateAgentDialogPropsOpen, setUpdateAgentDialogOpen] =
-    useState(false);
+
+  const [updateAgentDialogOpen, setUpdateAgentDialogOpen] = useState(false);
+
+  const { data } = useSuspenseQuery(
+    trpc.agents.getOne.queryOptions({ id: agentId })
+  );
 
   const removeAgent = useMutation(
     trpc.agents.remove.mutationOptions({
@@ -35,16 +39,15 @@ export const AgentIdView = ({ agentId }: Props) => {
         await queryClient.invalidateQueries(
           trpc.agents.getMany.queryOptions({})
         );
+        await queryClient.invalidateQueries(
+          trpc.premium.getFreeUsage.queryOptions()
+        );
         router.push("/agents");
       },
       onError: (error) => {
         toast.error(error.message);
       },
     })
-  );
-
-  const { data } = useSuspenseQuery(
-    trpc.agents.getOne.queryOptions({ id: agentId })
   );
 
   const [RemoveConfirmation, confirmRemove] = useConfirm(
@@ -64,7 +67,7 @@ export const AgentIdView = ({ agentId }: Props) => {
     <>
       <RemoveConfirmation />
       <UpdateAgentDialog
-        open={UpdateAgentDialogPropsOpen}
+        open={updateAgentDialogOpen}
         onOpenChange={setUpdateAgentDialogOpen}
         initialValues={data}
       />
@@ -73,7 +76,7 @@ export const AgentIdView = ({ agentId }: Props) => {
           agentId={agentId}
           agentName={data.name}
           onEdit={() => setUpdateAgentDialogOpen(true)}
-          onRemove={() => handleRemoveAgent}
+          onRemove={handleRemoveAgent}
         />
         <div className="bg-white rounded-lg border">
           <div className="px-4 py-5 gap-y-5 flex flex-col col-span-5">
@@ -104,19 +107,19 @@ export const AgentIdView = ({ agentId }: Props) => {
   );
 };
 
-export const AgentsIdViewLoading = () => {
+export const AgentIdViewLoading = () => {
   return (
     <LoadingState
-      title="Loading Agents"
-      description="This might take a few seconds"
+      title="Loading Agent"
+      description="This may take a few seconds"
     />
   );
 };
 
-export const AgentsIdViewError = () => {
+export const AgentIdViewError = () => {
   return (
     <ErrorState
-      title="Error Loading Agents"
+      title="Error Loading Agent"
       description="Something went wrong"
     />
   );
