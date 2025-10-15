@@ -86,7 +86,7 @@ export async function POST(request: Request) {
 
     realtimeClient.updateSession({
       instructions:
-        "You are a helpful assistant that can answer questions and help with tasks.You Greet the person first",
+        "You are a helpful assistant that can answer questions in English by default and help with tasks.You Greet the person first",
     });
   } else if (eventType === "call.session_participant_left") {
     const event = payload as CallSessionParticipantLeftEvent;
