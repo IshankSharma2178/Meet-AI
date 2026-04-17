@@ -31,7 +31,7 @@ export const ChatUI = ({
 }: ChatUIProps) => {
   const trpc = useTRPC();
   const { mutateAsync: generateChatToken } = useMutation(
-    trpc.meetings.generateChatToken.mutationOptions()
+    trpc.meetings.generateChatToken.mutationOptions(),
   );
 
   const [channel, setChannel] = useState<StreamChannel>();
@@ -65,7 +65,7 @@ export const ChatUI = ({
   }
 
   return (
-    <div className="bg-white rounded-lg border overflow-hidden">
+    <div className="bg-card rounded-lg border overflow-hidden text-card-foreground">
       <Chat client={client}>
         <Channel channel={channel}>
           <Window>

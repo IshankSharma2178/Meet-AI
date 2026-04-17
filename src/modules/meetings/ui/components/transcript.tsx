@@ -16,15 +16,15 @@ interface Props {
 export const Transcript = ({ meetingId }: Props) => {
   const trpc = useTRPC();
   const { data } = useQuery(
-    trpc.meetings.getTranscript.queryOptions({ id: meetingId })
+    trpc.meetings.getTranscript.queryOptions({ id: meetingId }),
   );
   const [searchQuery, setSearchQuery] = useState("");
   const filteredData = (data ?? []).filter((item) =>
-    item.text.toString().toLowerCase().includes(searchQuery.toLowerCase())
+    item.text.toString().toLowerCase().includes(searchQuery.toLowerCase()),
   );
 
   return (
-    <div className="bg-white rounded-lg border px-4 py-5 flex flex-col gap-y-4 w-full">
+    <div className="bg-card rounded-lg border px-4 py-5 flex flex-col gap-y-4 w-full text-card-foreground">
       <p className="text-sm font-medium">Transcript</p>
       <div className="relative">
         <Input
@@ -33,7 +33,7 @@ export const Transcript = ({ meetingId }: Props) => {
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
         />
-        <SearchIcon className="absolute left-2 top-1/2 -transalte-y-1/2 size-4 text-muted-foreground" />
+        <SearchIcon className="absolute left-2 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
       </div>
       <ScrollArea>
         <div className="flex flex-col gap-y-4">
@@ -57,13 +57,13 @@ export const Transcript = ({ meetingId }: Props) => {
                     />
                   </Avatar>
                   <p className="text-sm font-medium">{item.user.name}</p>
-                  <p className="text-sm text-blue-500 font-medium">
+                  <p className="text-sm text-primary font-medium">
                     {format(new Date(0, 0, 0, 0, 0, 0, item.start_ts), "mm:ss")}
                   </p>
                 </div>
                 <Highlighter
-                  className="text-sm text-neutral-700"
-                  highlightClassName="bg-yellow-200"
+                  className="text-sm text-foreground/80"
+                  highlightClassName="bg-primary/20 text-foreground"
                   searchWords={[searchQuery]}
                   autoEscape={true}
                   textToHighlight={item.text}

@@ -5,6 +5,7 @@ import { TRPCReactProvider } from "@/trpc/client";
 import "./globals.css";
 import { Toaster } from "@/components/ui/sonner";
 import { NuqsAdapter } from "nuqs/adapters/next";
+import { ThemeProvider } from "@/components/theme-provider";
 
 const inter = Inter({
   variable: "--font-geist-sans",
@@ -29,12 +30,14 @@ export default function RootLayout({
   return (
     <NuqsAdapter>
       <TRPCReactProvider>
-        <html lang="en">
+        <html lang="en" suppressHydrationWarning>
           <body
             className={`${inter.className} ${geistMono.variable} antialiased`}
           >
-            <Toaster />
-            {children}
+            <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
+              <Toaster />
+              {children}
+            </ThemeProvider>
           </body>
         </html>
       </TRPCReactProvider>

@@ -20,6 +20,7 @@ import {
 } from "@/components/ui/sidebar";
 import { DashboardUserButton } from "./dashboard-user-button";
 import { DashboardTrial } from "./dashboard-trial";
+import { ThemeToggle } from "@/components/theme-toggle";
 
 const firstSection = [
   {
@@ -120,7 +121,8 @@ export const DashboardSidebar = () => {
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
-      <SidebarFooter className="text-white">
+      <SidebarFooter className="text-sidebar-foreground">
+        <ThemeToggle variant="sidebar" />
         <DashboardTrial />
         <DashboardUserButton />
       </SidebarFooter>
