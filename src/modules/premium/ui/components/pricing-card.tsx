@@ -8,7 +8,7 @@ import { Separator } from "@/components/ui/separator";
 const pricingCardVariants = cva("rounded-lg p-4 py-6 w-full", {
   variants: {
     variant: {
-      default: "bg-white text-black",
+      default: "bg-card text-card-foreground",
       highlighted: "bg-linear-to-br from-[#093C23] to-[#051B16] text-white",
     },
   },
@@ -20,8 +20,8 @@ const pricingCardVariants = cva("rounded-lg p-4 py-6 w-full", {
 const pricingCardIconVariants = cva("size-5", {
   variants: {
     variant: {
-      default: "fill-primary text-white",
-      highlighted: "fill-white text-black",
+      default: "fill-primary text-primary-foreground",
+      highlighted: "fill-white text-white",
     },
   },
   defaultVariants: {
@@ -29,26 +29,29 @@ const pricingCardIconVariants = cva("size-5", {
   },
 });
 
-const pricingCardSecondaryTextVariants = cva("text-neutral-700", {
+const pricingCardSecondaryTextVariants = cva("text-muted-foreground", {
   variants: {
     variant: {
-      default: "text-neutral-700",
+      default: "text-muted-foreground",
       highlighted: "text-neutral-300",
     },
   },
 });
 
-const pricingCardBadgeVariants = cva("text-black text-xs font-normal p-1", {
-  variants: {
-    variant: {
-      default: "bg-primary/20",
-      highlighted: "bg-[#F5B797]",
+const pricingCardBadgeVariants = cva(
+  "text-foreground text-xs font-normal p-1",
+  {
+    variants: {
+      variant: {
+        default: "bg-primary/20",
+        highlighted: "bg-[#F5B797]",
+      },
+    },
+    defaultVariants: {
+      variant: "default",
     },
   },
-  defaultVariants: {
-    variant: "default",
-  },
-});
+);
 
 interface Props extends VariantProps<typeof pricingCardVariants> {
   badge?: string | null;
@@ -89,7 +92,7 @@ export const PricingCard = ({
           <p
             className={cn(
               "text-xs",
-              pricingCardSecondaryTextVariants({ variant })
+              pricingCardSecondaryTextVariants({ variant }),
             )}
           >
             {description}
@@ -124,7 +127,7 @@ export const PricingCard = ({
         <ul
           className={cn(
             "flex flex-col gap-y-2.5",
-            pricingCardSecondaryTextVariants({ variant })
+            pricingCardSecondaryTextVariants({ variant }),
           )}
         >
           {features.map((feature, index) => (

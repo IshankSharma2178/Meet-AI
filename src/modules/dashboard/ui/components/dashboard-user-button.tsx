@@ -47,7 +47,7 @@ export const DashboardUserButton = () => {
   if (isMobile) {
     return (
       <Drawer>
-        <DrawerTrigger className="rounded-lg border gap-x-2 border-border/10 p-3 w-full flex items-center justify-center bg-white/5 hover:bg-white/10 overflow-hidden">
+        <DrawerTrigger className="rounded-lg border gap-x-2 border-border/10 p-3 w-full flex items-center justify-center bg-background/5 hover:bg-background/10 overflow-hidden text-sidebar-foreground">
           {data.user.image ? (
             <Avatar>
               <AvatarImage src={data.user.image} />
@@ -83,7 +83,7 @@ export const DashboardUserButton = () => {
               Billing
             </Button>
             <Button variant="outline" onClick={onLogout}>
-              <LogOutIcon className="size-4 text-black" />
+              <LogOutIcon className="size-4" />
               Logout
             </Button>
           </DrawerFooter>
@@ -94,7 +94,7 @@ export const DashboardUserButton = () => {
 
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger className="rounded-lg border gap-x-2 border-border/10 p-3 w-full flex items-center justify-center bg-white/5 hover:bg-white/10 overflow-hidden">
+      <DropdownMenuTrigger className="rounded-lg border gap-x-2 border-border/10 p-3 w-full flex items-center justify-center bg-background/5 hover:bg-background/10 overflow-hidden text-sidebar-foreground">
         {data.user.image ? (
           <Avatar>
             <AvatarImage src={data.user.image} />
