@@ -3,8 +3,8 @@
 import { LoaderIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useTRPC } from "@/trpc/client";
-import "@stream-io/video-react-sdk/dist/css/styles.css";
 import { useMutation } from "@tanstack/react-query";
+import { toast } from "sonner";
 import { CallUI } from "./call-ui";
 import {
   Call,
@@ -17,6 +17,7 @@ import {
 interface Props {
   meetingId: string;
   meetingName: string;
+  hasOpenAiKey: boolean;
   userId: string;
   userName: string;
   userImage: string;
@@ -25,13 +26,18 @@ interface Props {
 export const CallConnect = ({
   meetingId,
   meetingName,
+  hasOpenAiKey,
   userId,
   userName,
   userImage,
 }: Props) => {
   const trpc = useTRPC();
   const { mutateAsync: generateToken } = useMutation(
-    trpc.meetings.generateToken.mutationOptions()
+    trpc.meetings.generateToken.mutationOptions({
+      onError: (error) => {
+        toast.error(error.message);
+      },
+    }),
   );
 
   const [client, setClient] = useState<StreamVideoClient>();
@@ -83,7 +89,7 @@ export const CallConnect = ({
   return (
     <StreamVideo client={client}>
       <StreamCall call={call}>
-        <CallUI meetingName={meetingName} />
+        <CallUI meetingName={meetingName} hasOpenAiKey={hasOpenAiKey} />
       </StreamCall>
     </StreamVideo>
   );

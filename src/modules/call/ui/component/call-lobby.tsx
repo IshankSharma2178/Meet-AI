@@ -15,6 +15,7 @@ import "@stream-io/video-react-sdk/dist/css/styles.css";
 
 interface Props {
   onJoin: () => void;
+  hasOpenAiKey: boolean;
 }
 
 const DisabledVideoPreview = () => {
@@ -46,7 +47,7 @@ const AllowBrowserPermissions = () => {
   );
 };
 
-export const CallLobby = ({ onJoin }: Props) => {
+export const CallLobby = ({ onJoin, hasOpenAiKey }: Props) => {
   const { useCameraState, useMicrophoneState } = useCallStateHooks();
 
   const { hasBrowserPermission: hasMicPermission } = useMicrophoneState();
@@ -77,11 +78,19 @@ export const CallLobby = ({ onJoin }: Props) => {
             <Button asChild variant="ghost">
               <Link href="/meetings">Cancel</Link>
             </Button>
-            <Button onClick={onJoin}>
+            <Button onClick={onJoin} disabled={!hasOpenAiKey}>
               <LogInIcon />
               Join Call
             </Button>
           </div>
+          {!hasOpenAiKey && (
+            <p className="text-sm text-center text-muted-foreground">
+              Add your OpenAI API key before joining voice calls.{" "}
+              <Link href="/api-keys" className="text-primary hover:underline">
+                Go to API Keys
+              </Link>
+            </p>
+          )}
         </div>
       </div>
     </div>

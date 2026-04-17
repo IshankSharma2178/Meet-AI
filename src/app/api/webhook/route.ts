@@ -16,8 +16,7 @@ import OpenAI from "openai";
 import { ChatCompletionMessageParam } from "openai/resources/index.mjs";
 import { generateAvatarUri } from "@/lib/avatar";
 import { streamChat } from "@/lib/stream-chat";
-
-const openaiClient = new OpenAI({ apiKey: process.env.OPENAI_API_KEY! });
+import { getUserOpenAiKey } from "@/lib/openai-key";
 
 function verifySignatureWithSDK(body: string, signature: string): boolean {
   return streamVideo.verifyWebhook(body, signature);
@@ -30,7 +29,7 @@ export async function POST(req: NextRequest) {
   if (!signature || !apiKey) {
     return NextResponse.json(
       { error: "Missing signature or API key" },
-      { status: 400 }
+      { status: 400 },
     );
   }
 
@@ -66,8 +65,8 @@ export async function POST(req: NextRequest) {
           not(eq(meetings.status, "completed")),
           not(eq(meetings.status, "active")),
           not(eq(meetings.status, "cancelled")),
-          not(eq(meetings.status, "processing"))
-        )
+          not(eq(meetings.status, "processing")),
+        ),
       );
 
     if (!existingMeeting) {
@@ -92,9 +91,20 @@ export async function POST(req: NextRequest) {
     }
 
     const call = streamVideo.video.call("default", meetingId);
+    let ownerOpenAiKey: string;
+
+    try {
+      ownerOpenAiKey = await getUserOpenAiKey(existingMeeting.userId);
+    } catch {
+      return NextResponse.json(
+        { error: "Meeting owner has not configured OpenAI API key" },
+        { status: 400 },
+      );
+    }
+
     const realtimeClient = await streamVideo.video.connectOpenAi({
       call,
-      openAiApiKey: process.env.OPENAI_API_KEY!,
+      openAiApiKey: ownerOpenAiKey,
       agentUserId: exisitingAgent.id,
     });
 
@@ -171,7 +181,7 @@ export async function POST(req: NextRequest) {
     if (!userId || !channelId || !text) {
       return NextResponse.json(
         { error: "Missing required fields" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -194,6 +204,19 @@ export async function POST(req: NextRequest) {
     }
 
     if (userId !== existingAgent.id) {
+      let ownerOpenAiKey: string;
+
+      try {
+        ownerOpenAiKey = await getUserOpenAiKey(existingMeeting.userId);
+      } catch {
+        return NextResponse.json(
+          { error: "Meeting owner has not configured OpenAI API key" },
+          { status: 400 },
+        );
+      }
+
+      const openaiClient = new OpenAI({ apiKey: ownerOpenAiKey });
+
       const instructions = `
                 You are an AI assistant helping the user revisit a recently completed meeting.
                 Below is a summary of the meeting, generated from the transcript:
@@ -239,7 +262,7 @@ export async function POST(req: NextRequest) {
       if (!GPTResponseText) {
         return NextResponse.json(
           { error: "No response from GPT" },
-          { status: 400 }
+          { status: 400 },
         );
       }
 
