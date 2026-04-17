@@ -5,11 +5,10 @@ import { StreamTranscriptItem } from "@/modules/meetings/types";
 import { eq, inArray } from "drizzle-orm";
 import JSONL from "jsonl-parse-stringify";
 import { createAgent, openai, TextMessage } from "@inngest/agent-kit";
+import { getUserOpenAiKey } from "@/lib/openai-key";
 
-const summarizer = createAgent({
-  name: "summarizer",
-  system:
-    `You are an expert summarizer. You write readable, concise, simple content. You are given a transcript of a meeting and you need to summarize it.
+const summarizerSystemPrompt =
+  `You are an expert summarizer. You write readable, concise, simple content. You are given a transcript of a meeting and you need to summarize it.
 
 Use the following markdown structure for every output:
 
@@ -27,17 +26,27 @@ Example:
 
 #### Next Section
 - Feature X automatically does Y
-- Mention of integration with Z`.trim(),
-  model: openai({
-    model: "gpt-4o-mini",
-    apiKey: process.env.OPENAI_API_KEY,
-  }),
-});
+- Mention of integration with Z`.trim();
 
 export const meetingsProcessing = inngest.createFunction(
   { id: "meetings/processing" },
   { event: "meetings/processing" },
   async ({ event, step }) => {
+    const [existingMeeting] = await step.run("get-meeting-owner", async () => {
+      return db
+        .select({ userId: meetings.userId })
+        .from(meetings)
+        .where(eq(meetings.id, event.data.meetingId));
+    });
+
+    if (!existingMeeting) {
+      throw new Error("Meeting not found");
+    }
+
+    const ownerOpenAiKey = await step.run("get-owner-openai-key", async () => {
+      return getUserOpenAiKey(existingMeeting.userId);
+    });
+
     const response = await step.run("fetch-transcript", async () => {
       return fetch(event.data.transcriptUrl).then((res) => res.text());
     });
@@ -58,7 +67,7 @@ export const meetingsProcessing = inngest.createFunction(
         .then((users) =>
           users.map((user) => ({
             ...user,
-          }))
+          })),
         );
 
       const agentSpeakers = await db
@@ -68,14 +77,14 @@ export const meetingsProcessing = inngest.createFunction(
         .then((agents) =>
           agents.map((agent) => ({
             ...agent,
-          }))
+          })),
         );
 
       const speakers = [...userSpeakers, ...agentSpeakers];
 
       return transcript.map((item) => {
         const speaker = speakers.find(
-          (speaker) => speaker.id === item.speaker_id
+          (speaker) => speaker.id === item.speaker_id,
         );
 
         if (!speaker) {
@@ -96,9 +105,18 @@ export const meetingsProcessing = inngest.createFunction(
       });
     });
 
+    const summarizer = createAgent({
+      name: "summarizer",
+      system: summarizerSystemPrompt,
+      model: openai({
+        model: "gpt-4o-mini",
+        apiKey: ownerOpenAiKey,
+      }),
+    });
+
     const { output } = await summarizer.run(
       "Summarize the following transcript: " +
-        JSON.stringify(transcriptWithSpeakers)
+        JSON.stringify(transcriptWithSpeakers),
     );
 
     await step.run("save-summary", async () => {
@@ -110,5 +128,5 @@ export const meetingsProcessing = inngest.createFunction(
         })
         .where(eq(meetings.id, event.data.meetingId));
     });
-  }
+  },
 );

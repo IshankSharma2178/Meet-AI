@@ -262,6 +262,18 @@ export const meetingsRouter = createTRPCRouter({
       return updatedMeeting;
     }),
   generateToken: protectedProcedure.mutation(async ({ ctx }) => {
+    const [existingUser] = await db
+      .select({ openAiApiKeyEncrypted: user.openAiApiKeyEncrypted })
+      .from(user)
+      .where(eq(user.id, ctx.auth.user.id));
+
+    if (!existingUser?.openAiApiKeyEncrypted) {
+      throw new TRPCError({
+        code: "FORBIDDEN",
+        message: "Add your OpenAI API key before joining voice calls",
+      });
+    }
+
     await streamVideo.upsertUsers([
       {
         id: ctx.auth.user.id,

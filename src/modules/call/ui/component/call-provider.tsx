@@ -8,9 +8,14 @@ import { CallConnect } from "./call-connect";
 interface Props {
   meetingId: string;
   meetingName: string;
+  hasOpenAiKey: boolean;
 }
 
-export const CallProvider = ({ meetingId, meetingName }: Props) => {
+export const CallProvider = ({
+  meetingId,
+  meetingName,
+  hasOpenAiKey,
+}: Props) => {
   const { data, isPending } = authClient.useSession();
 
   if (!data || isPending) {
@@ -25,6 +30,7 @@ export const CallProvider = ({ meetingId, meetingName }: Props) => {
     <CallConnect
       meetingId={meetingId}
       meetingName={meetingName}
+      hasOpenAiKey={hasOpenAiKey}
       userId={data.user.id}
       userName={data.user.name}
       userImage={

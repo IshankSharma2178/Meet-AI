@@ -12,7 +12,10 @@ interface Props {
 export const CallView = ({ meetingId }: Props) => {
   const trpc = useTRPC();
   const { data } = useSuspenseQuery(
-    trpc.meetings.getOne.queryOptions({ id: meetingId })
+    trpc.meetings.getOne.queryOptions({ id: meetingId }),
+  );
+  const { data: keyStatus } = useSuspenseQuery(
+    trpc.settings.getOpenAiKeyStatus.queryOptions(),
   );
 
   if (data.status === "completed") {
@@ -26,5 +29,11 @@ export const CallView = ({ meetingId }: Props) => {
     );
   }
 
-  return <CallProvider meetingId={meetingId} meetingName={data.name} />;
+  return (
+    <CallProvider
+      meetingId={meetingId}
+      meetingName={data.name}
+      hasOpenAiKey={keyStatus.hasKey}
+    />
+  );
 };
