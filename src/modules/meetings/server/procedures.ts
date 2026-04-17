@@ -47,7 +47,7 @@ export const meetingsRouter = createTRPCRouter({
         .select()
         .from(meetings)
         .where(
-          and(eq(meetings.id, input.id), eq(meetings.userId, ctx.auth.user.id))
+          and(eq(meetings.id, input.id), eq(meetings.userId, ctx.auth.user.id)),
         );
 
       if (!existingMeeting) {
@@ -82,7 +82,7 @@ export const meetingsRouter = createTRPCRouter({
             image:
               user.image ??
               generateAvatarUri({ seed: user.name, variant: "initials" }),
-          }))
+          })),
         );
 
       const agentSpeakers = await db
@@ -96,14 +96,14 @@ export const meetingsRouter = createTRPCRouter({
               seed: agent.name,
               variant: "botttsNeutral",
             }),
-          }))
+          })),
         );
 
       const speakers = [...userSpeakers, ...agentSpeakers];
 
       const transcriptWithSpeakers = transcript.map((item) => {
         const speaker = speakers.find(
-          (speaker) => speaker.id === item.speaker_id
+          (speaker) => speaker.id === item.speaker_id,
         );
 
         if (!speaker) {
@@ -138,13 +138,13 @@ export const meetingsRouter = createTRPCRouter({
           ...getTableColumns(meetings),
           agent: agents,
           duration: sql<number>`EXTRACT(EPOCH FROM (ended_at - started_at))`.as(
-            "duration"
+            "duration",
           ),
         })
         .from(meetings)
         .innerJoin(agents, eq(meetings.agentId, agents.id))
         .where(
-          and(eq(meetings.id, input.id), eq(meetings.userId, ctx.auth.user.id))
+          and(eq(meetings.id, input.id), eq(meetings.userId, ctx.auth.user.id)),
         );
 
       if (!existingMeeting) {
@@ -176,7 +176,7 @@ export const meetingsRouter = createTRPCRouter({
             MeetingStatus.Cancelled,
           ])
           .nullish(),
-      })
+      }),
     )
     .query(async ({ ctx, input }) => {
       const { page, pageSize, search, status, agentId } = input;
@@ -185,7 +185,7 @@ export const meetingsRouter = createTRPCRouter({
           agent: agents,
           ...getTableColumns(meetings),
           duration: sql<number>`EXTRACT(EPOCH FROM (ended_at - started_at))`.as(
-            "duration"
+            "duration",
           ),
         })
         .from(meetings)
@@ -195,8 +195,8 @@ export const meetingsRouter = createTRPCRouter({
             eq(meetings.userId, ctx.auth.user.id),
             search ? ilike(meetings.name, `%${search}%`) : undefined,
             status ? eq(meetings.status, status) : undefined,
-            agentId ? eq(meetings.agentId, agentId) : undefined
-          )
+            agentId ? eq(meetings.agentId, agentId) : undefined,
+          ),
         )
         .orderBy(desc(meetings.createdAt), desc(meetings.id))
         .limit(pageSize)
@@ -210,8 +210,8 @@ export const meetingsRouter = createTRPCRouter({
             eq(meetings.userId, ctx.auth.user.id),
             search ? ilike(meetings.name, `%${search}%`) : undefined,
             status ? eq(meetings.status, status) : undefined,
-            agentId ? eq(meetings.agentId, agentId) : undefined
-          )
+            agentId ? eq(meetings.agentId, agentId) : undefined,
+          ),
         );
       const totalPages = Math.ceil(total.count / pageSize);
       return {
@@ -227,7 +227,7 @@ export const meetingsRouter = createTRPCRouter({
       const [removedMeeting] = await db
         .delete(meetings)
         .where(
-          and(eq(meetings.id, input.id), eq(meetings.userId, ctx.auth.user.id))
+          and(eq(meetings.id, input.id), eq(meetings.userId, ctx.auth.user.id)),
         )
         .returning();
 
@@ -248,7 +248,7 @@ export const meetingsRouter = createTRPCRouter({
         .update(meetings)
         .set(input)
         .where(
-          and(eq(meetings.id, input.id), eq(meetings.userId, ctx.auth.user.id))
+          and(eq(meetings.id, input.id), eq(meetings.userId, ctx.auth.user.id)),
         )
         .returning();
 
@@ -296,8 +296,8 @@ export const meetingsRouter = createTRPCRouter({
         })
         .returning();
       const maxDuration = parseInt(
-        process.env.MAX_DURATION_SECONDS || "20",
-        10
+        process.env.MAX_DURATION_SECONDS || "120",
+        10,
       );
 
       const call = streamVideo.video.call("default", createdMeeting.id);
